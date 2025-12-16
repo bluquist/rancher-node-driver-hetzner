@@ -3,17 +3,23 @@ driver:
     auth:
       fields:
         token:
-          label: "API Token"
-          placeholder: "Your Hetzner Cloud API token."
+          label: 'API Token'
+          placeholder: 'Your Hetzner Cloud API token.'
     machine:
       server:
         title: 'Server configuration'
         location:
           label: 'Server Location'
           placeholder: 'Select a server location'
+          useCheckbox: 'Use checkbox selection for location'
+          checkboxDescription: 'Enable to select location using checkboxes instead of dropdown'
+          required: 'Location is required'
         type:
           label: 'Server Type'
           placeholder: 'Select a server type'
+          useCheckbox: 'Use checkbox selection for server type'
+          checkboxDescription: 'Enable to select server type using checkboxes instead of dropdown'
+          required: 'Server type is required'
         image:
           label: 'Server Image'
           placeholder: 'Select a server image'
