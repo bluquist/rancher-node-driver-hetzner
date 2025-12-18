@@ -11,15 +11,9 @@ driver:
         location:
           label: 'Konum'
           placeholder: 'Konum seç'
-          useCheckbox: 'Konum için checkbox seçimi kullan'
-          checkboxDescription: "Açılır menü yerine checkbox'ları kullanarak konum seçimi yapmak için etkinleştirin"
-          required: 'Konum seçimi zorunludur'
         type:
           label: 'Sunucu türü'
           placeholder: 'Sunucu türü seç'
-          useCheckbox: 'Sunucu türü için checkbox seçimi kullan'
-          checkboxDescription: "Açılır menü yerine checkbox'ları kullanarak sunucu türü seçimi yapmak için etkinleştirin"
-          required: 'Sunucu türü seçimi zorunludur'
         image:
           label: 'İşletim sistemi (imaj)'
           placeholder: 'Bir işletim sistemi seç'
