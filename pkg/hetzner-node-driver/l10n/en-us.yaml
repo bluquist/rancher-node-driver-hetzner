@@ -3,8 +3,8 @@ driver:
     auth:
       fields:
         token:
-          label: "API Token"
-          placeholder: "Your Hetzner Cloud API token."
+          label: 'API Token'
+          placeholder: 'Your Hetzner Cloud API token.'
     machine:
       server:
         title: 'Server configuration'

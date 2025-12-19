@@ -1,0 +1,53 @@
+driver:
+  hetzner:
+    auth:
+      fields:
+        token:
+          label: 'API Token'
+          placeholder: "Hetzner Cloud API token'ını buraya yapıştır."
+    machine:
+      server:
+        title: 'Sunucu ayarları'
+        location:
+          label: 'Konum'
+          placeholder: 'Konum seç'
+        type:
+          label: 'Sunucu türü'
+          placeholder: 'Sunucu türü seç'
+        image:
+          label: 'İşletim sistemi (imaj)'
+          placeholder: 'Bir işletim sistemi seç'
+        placementGroup:
+          label: 'Placement Group (yerleşim grubu)'
+          placeholder: 'Bir placement group seç'
+      network:
+        title: 'Ağ ayarları'
+        networks:
+          label: 'Özel ağlar'
+          placeholder: 'Bağlanılacak özel ağları seç'
+        private:
+          label: 'Özel ağ kullan'
+          description: 'Düğümlerin (node) kendi arasında özel ağdan haberleşmesini sağlar.'
+        disablePublic:
+          label: 'Public ağı kapat'
+          description: 'Sunucunun tüm public (genel) bağlantılarını kapatır. Bunu açacaksan bir özel ağ seçmen gerekir.'
+        disableIPv6:
+          label: 'IPv6 kapalı olsun'
+          description: 'Public IPv6 arayüzünü kapatır.'
+        disableIPv4:
+          label: 'IPv4 kapalı olsun'
+          description: 'Public IPv4 arayüzünü kapatır ve IPv4 adresi vermez.'
+        firewalls:
+          label: 'Güvenlik duvarları'
+          placeholder: 'Sunucuya uygulanacak güvenlik duvarlarını seç'
+        sshKey:
+          label: 'SSH anahtarı'
+          placeholder: 'Kullanılacak SSH anahtarını seç'
+      additionalConfig:
+        title: 'Ek ayarlar'
+        labels:
+          label: 'Etiketler'
+          description: 'Sunucuya etiket ekle'
+        userData:
+          label: 'User Data (cloud-init)'
+          description: "Rancher'ın eklediği user data ile birleştirilir. Ek cloud-init ayarı eklemek için kullan."

@@ -1,24 +1,32 @@
 {
-  "name": "hetzner-node-driver",
-  "version": "0.1.0",
-  "private": false,
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "@rancher/shell": "^3.0.4"
-  },
-  "resolutions": {
-    "@types/node": "~20.10.0",
-    "@types/lodash": "4.17.5"
-  },
-  "scripts": {
-    "dev": "NODE_ENV=dev ./node_modules/.bin/vue-cli-service serve",
-    "build": "./node_modules/.bin/vue-cli-service build",
-    "clean": "./node_modules/@rancher/shell/scripts/clean",
-    "build-pkg": "./node_modules/@rancher/shell/scripts/build-pkg.sh",
-    "serve-pkgs": "./node_modules/@rancher/shell/scripts/serve-pkgs",
-    "publish-pkgs": "./node_modules/@rancher/shell/scripts/extension/publish",
-    "parse-tag-name": "./node_modules/@rancher/shell/scripts/extension/parse-tag-name"
-  }
+    "name": "hetzner-node-driver",
+    "version": "0.1.0",
+    "private": false,
+    "engines": {
+        "node": ">=20"
+    },
+    "dependencies": {
+        "@rancher/shell": "^3.0.4"
+    },
+    "resolutions": {
+        "@types/node": "~20.10.0",
+        "@types/lodash": "4.17.5"
+    },
+    "scripts": {
+        "dev": "NODE_ENV=dev ./node_modules/.bin/vue-cli-service serve",
+        "build": "./node_modules/.bin/vue-cli-service build",
+        "clean": "./node_modules/@rancher/shell/scripts/clean",
+        "build-pkg": "./node_modules/@rancher/shell/scripts/build-pkg.sh",
+        "serve-pkgs": "./node_modules/@rancher/shell/scripts/serve-pkgs",
+        "publish-pkgs": "./node_modules/@rancher/shell/scripts/extension/publish",
+        "parse-tag-name": "./node_modules/@rancher/shell/scripts/extension/parse-tag-name",
+        "format": "prettier --write \"pkg/**/*.{ts,js,vue,json,yaml}\"",
+        "format:check": "prettier --check \"pkg/**/*.{ts,js,vue,json,yaml}\""
+    },
+    "devDependencies": {
+        "@types/jest": "^30.0.0",
+        "@types/lodash": "^4.17.21",
+        "@types/node": "^25.0.2",
+        "@types/webpack-env": "^1.18.8"
+    }
 }
