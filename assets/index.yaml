@@ -12,6 +12,26 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 0.1.2
+    created: "2026-01-30T10:26:58.163241156Z"
+    description: hetzner-node-driver plugin
+    digest: e06bd961916018036a4c9db134d515e06153c3caff11648fbe9128c001a3e6ec
+    name: hetzner-node-driver
+    type: application
+    urls:
+    - assets/hetzner-node-driver/hetzner-node-driver-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Hetzner Node Driver
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 0.1.1
     created: "2026-01-30T09:02:25.447130457Z"
     description: hetzner-node-driver plugin
@@ -41,4 +61,4 @@ entries:
     urls:
     - assets/hetzner-node-driver/hetzner-node-driver-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-30T09:02:25.446389376Z"
+generated: "2026-01-30T10:26:58.162614333Z"

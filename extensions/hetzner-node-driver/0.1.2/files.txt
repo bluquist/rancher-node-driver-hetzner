@@ -1,0 +1,14 @@
+plugin/hetzner-node-driver-0.1.2.umd.min.324.js
+plugin/hetzner-node-driver-0.1.2.umd.min.324.js.map
+plugin/hetzner-node-driver-0.1.2.umd.min.37.js
+plugin/hetzner-node-driver-0.1.2.umd.min.37.js.map
+plugin/hetzner-node-driver-0.1.2.umd.min.584.js
+plugin/hetzner-node-driver-0.1.2.umd.min.584.js.map
+plugin/hetzner-node-driver-0.1.2.umd.min.60.js
+plugin/hetzner-node-driver-0.1.2.umd.min.60.js.map
+plugin/hetzner-node-driver-0.1.2.umd.min.js
+plugin/hetzner-node-driver-0.1.2.umd.min.js.map
+plugin/hetzner-node-driver-0.1.2.umd.min.machine-config.js
+plugin/hetzner-node-driver-0.1.2.umd.min.machine-config.js.map
+plugin/img/hetzner.e7567fe2.svg
+plugin/package.json
