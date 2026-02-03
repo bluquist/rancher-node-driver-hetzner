@@ -18,21 +18,27 @@ export class HetznerCloud {
   }
 
   public async getLocations(): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/locations');
+    interface LocationResponse {
+      name: string;
+      city: string;
+      country: string;
+      network_zone: string;
+    }
 
-      if (!response?.locations || !Array.isArray(response.locations)) {
+    try {
+      let locations: Array<LocationResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/locations?page=${page++}`);
+        locations = locations.concat(response?.locations || []);
+      } while (response?.locations?.length && page <= response?.meta?.pagination?.last_page);
+
+      if (locations.length === 0) {
         return [];
       }
 
-      interface LocationResponse {
-        name: string;
-        city: string;
-        country: string;
-        network_zone: string;
-      }
-
-      const locations = response.locations
+      return locations
         .sort((a: LocationResponse, b: LocationResponse) => {
           if (a.network_zone !== b.network_zone) {
             return a.network_zone.localeCompare(b.network_zone);
@@ -51,8 +57,6 @@ export class HetznerCloud {
             networkZone: location.network_zone,
           };
         });
-
-      return locations;
     } catch (error) {
       return [];
     }
@@ -70,30 +74,36 @@ export class HetznerCloud {
   }
 
   public async getServerTypes(location?: string): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/server_types');
+    interface ServerTypeResponse {
+      name: string;
+      deprecated: boolean;
+      architecture: string;
+      cores: number;
+      memory: number;
+      disk: number;
+      cpu_type: 'shared' | 'dedicated';
+      prices: Array<{
+        location: string;
+        price_monthly: {
+          gross: string;
+        };
+      }>;
+    }
 
-      if (!response?.server_types || !Array.isArray(response.server_types)) {
+    try {
+      let serverTypes: Array<ServerTypeResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/server_types?page=${page++}`);
+        serverTypes = serverTypes.concat(response?.server_types || []);
+      } while (response?.server_types?.length && page <= response?.meta?.pagination?.last_page);
+
+      if (!serverTypes.length) {
         return [];
       }
 
-      interface ServerTypeResponse {
-        name: string;
-        deprecated: boolean;
-        architecture: string;
-        cores: number;
-        memory: number;
-        disk: number;
-        cpu_type: 'shared' | 'dedicated';
-        prices: Array<{
-          location: string;
-          price_monthly: {
-            gross: string;
-          };
-        }>;
-      }
-
-      let serverTypes = response.server_types.filter(
+      serverTypes = serverTypes.filter(
         (type: ServerTypeResponse) => !type.deprecated,
       );
 
@@ -165,21 +175,23 @@ export class HetznerCloud {
   }
 
   public async getImages(): Promise<HetznerOption[]> {
+    interface ImageResponse {
+      id: number;
+      name: string;
+      architecture: string;
+      description: string;
+    }
+
     try {
-      const response = await this.request('/images');
+      let images: Array<ImageResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/images?page=${page++}`);
+        images = images.concat(response?.images || []);
+      } while (response?.images?.length && page <= response?.meta?.pagination?.last_page);
 
-      if (!response?.images || !Array.isArray(response.images)) {
-        return [];
-      }
-
-      interface ImageResponse {
-        id: number;
-        name: string;
-        architecture: string;
-        description: string;
-      }
-
-      return response.images
+      return images
         .sort((a: ImageResponse, b: ImageResponse) =>
           a.name.localeCompare(b.name),
         )
@@ -193,22 +205,30 @@ export class HetznerCloud {
   }
 
   public async getPlacementGroups(): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/placement_groups');
+    interface PlacementGroupResponse {
+      id: number;
+      name: string;
+    }
 
-      if (
-        !response?.placement_groups ||
-        !Array.isArray(response.placement_groups)
-      ) {
+    try {
+      let placementGroups: Array<PlacementGroupResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/placement_groups?page=${page++}`);
+        placementGroups = placementGroups.concat(
+          response?.placement_groups || [],
+        );
+      } while (
+        response?.placement_groups?.length &&
+        page <= response?.meta?.pagination?.last_page
+      );
+
+      if (placementGroups.length === 0) {
         return [];
       }
 
-      interface PlacementGroupResponse {
-        id: number;
-        name: string;
-      }
-
-      return response.placement_groups.map((pg: PlacementGroupResponse) => ({
+      return placementGroups.map((pg: PlacementGroupResponse) => ({
         value: pg.id,
         label: pg.name,
       }));
@@ -218,20 +238,26 @@ export class HetznerCloud {
   }
 
   public async getNetworks(): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/networks');
+    interface NetworkResponse {
+      id: number;
+      name: string;
+      ip_range: string;
+    }
 
-      if (!response?.networks || !Array.isArray(response.networks)) {
+    try {
+      let networks: Array<NetworkResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/networks?page=${page++}`);
+        networks = networks.concat(response?.networks || []);
+      } while (response?.networks?.length && page <= response?.meta?.pagination?.last_page);
+
+      if (networks.length === 0) {
         return [];
       }
 
-      interface NetworkResponse {
-        id: number;
-        name: string;
-        ip_range: string;
-      }
-
-      return response.networks.map((network: NetworkResponse) => ({
+      return networks.map((network: NetworkResponse) => ({
         value: network.id,
         label: `${network.name} (${network.ip_range})`,
       }));
@@ -241,19 +267,25 @@ export class HetznerCloud {
   }
 
   public async getFirewalls(): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/firewalls');
+    interface FirewallResponse {
+      id: number;
+      name: string;
+    }
 
-      if (!response?.firewalls || !Array.isArray(response.firewalls)) {
+    try {
+      let firewalls: Array<FirewallResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/firewalls?page=${page++}`);
+        firewalls = firewalls.concat(response?.firewalls || []);
+      } while (response?.firewalls?.length && page <= response?.meta?.pagination?.last_page);
+
+      if (firewalls.length === 0) {
         return [];
       }
 
-      interface FirewallResponse {
-        id: number;
-        name: string;
-      }
-
-      return response.firewalls.map((firewall: FirewallResponse) => ({
+      return firewalls.map((firewall: FirewallResponse) => ({
         value: firewall.id,
         label: firewall.name,
       }));
@@ -263,19 +295,26 @@ export class HetznerCloud {
   }
 
   public async getSshKeys(): Promise<HetznerOption[]> {
-    try {
-      const response = await this.request('/ssh_keys');
+    interface SshKeyResponse {
+      id: number;
+      name: string;
+    }
 
-      if (!response?.ssh_keys || !Array.isArray(response.ssh_keys)) {
+    try {
+      let sshKeys: Array<SshKeyResponse> = [];
+      let response;
+      let page = 1;
+      do {
+        response = await this.request(`/ssh_keys?page=${page++}`);
+        sshKeys = sshKeys.concat(response?.ssh_keys || []);
+      } while (response?.ssh_keys?.length && page <= response?.meta?.pagination?.last_page);
+
+      if (sshKeys.length === 0) {
         return [];
       }
 
-      interface SshKeyResponse {
-        id: number;
-        name: string;
-      }
 
-      return response.ssh_keys.map((key: SshKeyResponse) => ({
+      return sshKeys.map((key: SshKeyResponse) => ({
         value: key.id,
         label: key.name,
       }));
