@@ -41,9 +41,9 @@ export class HetznerCloud {
       return locations
         .sort((a: LocationResponse, b: LocationResponse) => {
           if (a.network_zone !== b.network_zone) {
-            return a.network_zone.localeCompare(b.network_zone);
+            return a.network_zone?.localeCompare(b.network_zone) ?? -1;
           }
-          return a.name.localeCompare(b.name);
+          return a.name?.localeCompare(b.name) ?? -1;
         })
         .map((location: LocationResponse) => {
           const countryName = this.getCountryName(location.country);
@@ -117,13 +117,13 @@ export class HetznerCloud {
       const sharedTypes = serverTypes
         .filter((type: ServerTypeResponse) => type.cpu_type === 'shared')
         .sort((a: ServerTypeResponse, b: ServerTypeResponse) =>
-          a.name.localeCompare(b.name),
+          a.name?.localeCompare(b.name) ?? -1,
         );
 
       const dedicatedTypes = serverTypes
         .filter((type: ServerTypeResponse) => type.cpu_type === 'dedicated')
         .sort((a: ServerTypeResponse, b: ServerTypeResponse) =>
-          a.name.localeCompare(b.name),
+          a.name?.localeCompare(b.name) ?? -1,
         );
 
       const formatServerType = (type: ServerTypeResponse): HetznerOption => {
@@ -193,7 +193,7 @@ export class HetznerCloud {
 
       return images
         .sort((a: ImageResponse, b: ImageResponse) =>
-          a.name.localeCompare(b.name),
+          a.name?.localeCompare(b.name) ?? -1,
         )
         .map((image: ImageResponse) => ({
           value: image.id,
