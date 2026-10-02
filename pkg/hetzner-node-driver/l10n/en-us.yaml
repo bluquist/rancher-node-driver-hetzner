@@ -25,6 +25,10 @@ driver:
         networks:
           label: 'Networks'
           placeholder: 'Select private networks to connect to'
+        subnet:
+          label: 'Subnet for {network}'
+          placeholder: 'Automatic (Hetzner assigns an IP)'
+          zoneMismatch: 'The selected subnets ({subnets}) are not in the network zone of the selected server location. Choose another subnet or location.'
         private:
           label: 'Use Private Network'
           description: 'Enable this to use private networks for communication between nodes.'

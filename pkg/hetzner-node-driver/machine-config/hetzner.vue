@@ -4,8 +4,14 @@ import Loading from '@shell/components/Loading.vue';
 import LabeledSelect from '@shell/components/form/LabeledSelect.vue';
 import KeyValue from '@shell/components/form/KeyValue.vue';
 import Checkbox from '@shell/rancher-components/Form/Checkbox/Checkbox.vue';
+import Banner from '@shell/rancher-components/Banner/Banner.vue';
 import YamlEditor from '@shell/components/YamlEditor.vue';
 import { HetznerCloud, HetznerOption } from '../hcloud';
+import {
+  formatNetworkValue,
+  NetworkValue,
+  parseNetworkValue,
+} from '../network-config';
 
 interface Props {
   uuid: string;
@@ -26,6 +32,7 @@ interface ServerConfiguration {
   sshKeyId?: number;
   firewallIds?: number[];
   networkIds?: number[];
+  networkIpRanges?: Record<string, string>;
   placementGroupId?: number;
 
   serverImage?: number;
@@ -73,6 +80,7 @@ const serverConfiguration = reactive<ServerConfiguration>({
   sshKeyId: undefined,
   firewallIds: [],
   networkIds: [],
+  networkIpRanges: {},
   placementGroupId: undefined,
   serverImage: undefined,
   serverType: undefined,
@@ -90,6 +98,64 @@ const syncingFromProps = ref<boolean>(false);
 
 const isLoading = computed(() => loadingData.value || props.busy);
 
+const selectedNetworkZone = computed(
+  () =>
+    hetznerOptions.value.locations.find(
+      (location) => location.value === serverConfiguration.serverLocation,
+    )?.networkZone,
+);
+
+function findNetwork(networkId: string) {
+  return hetznerOptions.value.networks?.find(
+    (network) => String(network.value) === networkId,
+  );
+}
+
+const subnetSelections = computed(() =>
+  (serverConfiguration.networkIds || []).map((id) => {
+    const networkId = String(id);
+    const network = findNetwork(networkId);
+    const subnets = (network?.subnets || []).filter(
+      (subnet) =>
+        !selectedNetworkZone.value ||
+        subnet.networkZone === selectedNetworkZone.value,
+    );
+    return {
+      networkId,
+      networkName: network?.label ?? networkId,
+      options: subnets.map((subnet) => ({
+        label: `${subnet.ipRange} (${subnet.networkZone})`,
+        value: subnet.ipRange,
+      })),
+    };
+  }),
+);
+
+const subnetZoneMismatches = computed(() =>
+  Object.entries(serverConfiguration.networkIpRanges || {})
+    .filter(([networkId, ipRange]) => {
+      const subnet = findNetwork(networkId)?.subnets?.find(
+        (candidate) => candidate.ipRange === ipRange,
+      );
+      return (
+        !!subnet &&
+        !!selectedNetworkZone.value &&
+        subnet.networkZone !== selectedNetworkZone.value
+      );
+    })
+    .map(([, ipRange]) => ipRange),
+);
+
+function setNetworkIpRange(networkId: string, ipRange?: string | null) {
+  const ranges = { ...(serverConfiguration.networkIpRanges || {}) };
+  if (ipRange) {
+    ranges[networkId] = ipRange;
+  } else {
+    delete ranges[networkId];
+  }
+  serverConfiguration.networkIpRanges = ranges;
+}
+
 async function updateValue() {
   if (isValid.value) {
     // Apply values
@@ -104,7 +170,12 @@ async function updateValue() {
         : undefined;
 
     props.value.networks =
-      serverConfiguration.networkIds?.map((id) => id?.toString()) || [];
+      serverConfiguration.networkIds?.map((id) =>
+        formatNetworkValue(
+          String(id),
+          serverConfiguration.networkIpRanges?.[String(id)],
+        ),
+      ) || [];
     props.value.firewalls =
       serverConfiguration.firewallIds?.map((id) => id?.toString()) || [];
     props.value.existingKeyId =
@@ -169,11 +240,17 @@ watch(
           : newValue.placementGroup
         : undefined;
 
-    serverConfiguration.networkIds = Array.isArray(newValue.networks)
-      ? newValue.networks.map((id: any) =>
-          typeof id === 'string' ? Number(id) : id,
+    const parsedNetworks: NetworkValue[] = Array.isArray(newValue.networks)
+      ? newValue.networks.map((value: unknown) =>
+          parseNetworkValue(String(value)),
         )
       : [];
+    serverConfiguration.networkIds = parsedNetworks.map(({ id }) => Number(id));
+    serverConfiguration.networkIpRanges = Object.fromEntries(
+      parsedNetworks.flatMap(({ id, ipRange }): [string, string][] =>
+        ipRange ? [[id, ipRange]] : [],
+      ),
+    );
 
     serverConfiguration.firewallIds = Array.isArray(newValue.firewalls)
       ? newValue.firewalls.map((id: any) =>
@@ -202,8 +279,8 @@ watch(
 );
 
 watch(
-  serverConfiguration,
-  async (newValue) => {
+  [serverConfiguration, subnetZoneMismatches],
+  async ([newValue, zoneMismatches]) => {
     let valid = true;
     if (
       !newValue.serverImage ||
@@ -223,6 +300,9 @@ watch(
     if (newValue.usePrivateNetwork && !newValue.networkIds?.length) {
       valid = false;
     }
+    if (zoneMismatches.length) {
+      valid = false;
+    }
     isValid.value = valid;
     emit('validationChanged', valid);
     if (valid && !syncingFromProps.value) {
@@ -230,6 +310,19 @@ watch(
     }
   },
   { immediate: true, deep: true },
+);
+
+watch(
+  () => serverConfiguration.networkIds,
+  (networkIds) => {
+    const selected = new Set((networkIds || []).map(String));
+    const ranges = serverConfiguration.networkIpRanges || {};
+    if (Object.keys(ranges).some((id) => !selected.has(id))) {
+      serverConfiguration.networkIpRanges = Object.fromEntries(
+        Object.entries(ranges).filter(([id]) => selected.has(id)),
+      );
+    }
+  },
 );
 
 watch(
@@ -433,6 +526,45 @@ export default defineComponent({
             :label="t('driver.hetzner.machine.network.private.label')"
             :description="
               t('driver.hetzner.machine.network.private.description')
+            "
+          />
+        </div>
+      </div>
+      <div
+        v-for="selection in subnetSelections"
+        :key="selection.networkId"
+        class="row mt-10"
+      >
+        <div class="col span-6">
+          <LabeledSelect
+            :value="serverConfiguration.networkIpRanges?.[selection.networkId]"
+            :options="selection.options"
+            clearable
+            :disabled="isLoading"
+            :loading="isLoading"
+            :placeholder="
+              t('driver.hetzner.machine.network.subnet.placeholder')
+            "
+            :label="
+              t('driver.hetzner.machine.network.subnet.label', {
+                network: selection.networkName,
+              })
+            "
+            @update:value="
+              (ipRange: string | null) =>
+                setNetworkIpRange(selection.networkId, ipRange)
+            "
+          />
+        </div>
+      </div>
+      <div v-if="subnetZoneMismatches.length" class="row mt-10">
+        <div class="col span-12">
+          <Banner
+            color="error"
+            :label="
+              t('driver.hetzner.machine.network.subnet.zoneMismatch', {
+                subnets: subnetZoneMismatches.join(', '),
+              })
             "
           />
         </div>

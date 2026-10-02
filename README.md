@@ -50,6 +50,8 @@ In Rancher, navigate to `Cluster Management` → `Cloud Credentials`. Create a n
 ### Create a cluster
 You should now be able to create a new cluster using the Hetzner driver. If you want to use private networks for communication, make sure that Rancher can reach the private Hetzner network.
 
+Optionally, a subnet can be selected for each network so that nodes get their private IP from a specific IP range. This requires a docker-machine-driver-hetzner build that supports the `<network>:<ip-range>` syntax for `--hetzner-networks` (see https://github.com/JonasProgrammer/docker-machine-driver-hetzner/pull/131). Without a subnet selection, the configuration sent to the driver is unchanged and works with older driver versions.
+
 ## Development
 
 See the Rancher extension documentation for details on the development: https://extensions.rancher.io/extensions/next/introduction

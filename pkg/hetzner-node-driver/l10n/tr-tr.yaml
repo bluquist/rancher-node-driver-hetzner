@@ -25,6 +25,10 @@ driver:
         networks:
           label: 'Özel ağlar'
           placeholder: 'Bağlanılacak özel ağları seç'
+        subnet:
+          label: '{network} için subnet'
+          placeholder: 'Otomatik (IP adresini Hetzner atar)'
+          zoneMismatch: "Seçili subnet'ler ({subnets}) sunucu lokasyonunun ağ bölgesinde değil. Başka bir subnet veya lokasyon seç."
         private:
           label: 'Özel ağ kullan'
           description: 'Düğümlerin (node) kendi arasında özel ağdan haberleşmesini sağlar.'

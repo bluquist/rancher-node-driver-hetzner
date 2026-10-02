@@ -1,3 +1,9 @@
+export interface HetznerSubnet {
+  ipRange: string;
+  networkZone: string;
+  type: string;
+}
+
 export interface HetznerOption {
   label: string;
   value: string | number;
@@ -6,6 +12,7 @@ export interface HetznerOption {
   networkZone?: string;
   disabled?: boolean;
   kind?: string;
+  subnets?: HetznerSubnet[];
 }
 
 export class HetznerCloud {
@@ -242,6 +249,11 @@ export class HetznerCloud {
       id: number;
       name: string;
       ip_range: string;
+      subnets?: Array<{
+        ip_range: string;
+        network_zone: string;
+        type: string;
+      }>;
     }
 
     try {
@@ -260,6 +272,11 @@ export class HetznerCloud {
       return networks.map((network: NetworkResponse) => ({
         value: network.id,
         label: `${network.name} (${network.ip_range})`,
+        subnets: (network.subnets || []).map((subnet) => ({
+          ipRange: subnet.ip_range,
+          networkZone: subnet.network_zone,
+          type: subnet.type,
+        })),
       }));
     } catch (error) {
       return [];
